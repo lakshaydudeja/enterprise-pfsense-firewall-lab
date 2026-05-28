@@ -63,6 +63,60 @@ The Windows Server 2025 VM will be configured with:
 | Default Gateway | 10.0.10.1 |
 | DNS Server | 10.0.10.1 |
 
+## Completed Configuration
+
+### DMZ Interface Assignment
+
+The DMZ interface was assigned in the pfSense console.
+
+Final interface mapping:
+
+| pfSense Interface | VMware Interface | IP Address |
+|---|---|---|
+| WAN | em0 | DHCP - 192.168.126.133/24 |
+| LAN | em1 | 10.0.0.1/24 |
+| HOSTONLY | em2 | 172.16.0.2/24 |
+| DMZ | em3 | 10.0.10.1/24 |
+
+### DMZ Interface Configuration
+
+The DMZ interface was enabled and configured with a static IPv4 address.
+
+| Setting | Value |
+|---|---|
+| Interface Name | DMZ |
+| IPv4 Configuration Type | Static IPv4 |
+| IPv4 Address | 10.0.10.1 |
+| Subnet Mask | /24 |
+| Purpose | Gateway for DMZ network |
+
+### Windows Server 2025 DMZ Configuration
+
+Windows Server 2025 was connected to the VMware `DMZ-Segment` LAN segment and configured with a static IP address.
+
+| Setting | Value |
+|---|---|
+| IP Address | 10.0.10.10 |
+| Subnet Mask | 255.255.255.0 |
+| Default Gateway | 10.0.10.1 |
+| DNS Server | 10.0.10.1, 8.8.8.8 |
+
+### Temporary DMZ Connectivity Rule
+
+A temporary firewall rule was created on the DMZ interface to allow initial connectivity testing.
+
+| Setting | Value |
+|---|---|
+| Action | Pass |
+| Interface | DMZ |
+| Address Family | IPv4 |
+| Protocol | Any |
+| Source | DMZ subnets |
+| Destination | Any |
+| Description | TEMP - Allow DMZ traffic for initial connectivity testing |
+
+This temporary rule allowed the DMZ server to reach the pfSense DMZ gateway and access the internet. This rule will later be replaced with more restrictive production-style rules.
+
 ## Validation Tests
 
 The following tests will be performed after configuration:
