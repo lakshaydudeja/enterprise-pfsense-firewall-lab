@@ -173,15 +173,34 @@ Blocked - 4 packets sent, 0 packets received, 100% packet loss
 
 This confirms that the firewall rule blocking DMZ-to-LAN traffic is working as expected.
 
+### Test 4: LAN to DMZ Admin Access
+
+The Windows 10 LAN client was tested for connectivity to the Windows Server 2025 DMZ server.
+
+Command used:
+
+```cmd
+ping 10.0.10.10
+```
+
+Result:
+
+```text
+Successful - 4 packets sent, 4 packets received, 0% packet loss
+```
+
+This confirms that the internal LAN can reach the DMZ server through the firewall rule allowing LAN-to-DMZ administrative access.
+
 ## Validation Summary
 
-| Test                  | Source     | Destination | Expected Result | Actual Result |
-| --------------------- | ---------- | ----------- | --------------- | ------------- |
-| Internet connectivity | DMZ Server | 8.8.8.8     | Allowed         | Successful    |
-| DNS resolution        | DMZ Server | google.com  | Allowed         | Successful    |
-| DMZ to LAN access     | DMZ Server | 10.0.0.1    | Blocked         | Blocked       |
+| Test                    | Source                | Destination | Expected Result | Actual Result |
+| ----------------------- | --------------------- | ----------- | --------------- | ------------- |
+| Internet connectivity   | DMZ Server            | 8.8.8.8     | Allowed         | Successful    |
+| DNS resolution          | DMZ Server            | google.com  | Allowed         | Successful    |
+| DMZ to LAN access       | DMZ Server            | 10.0.0.1    | Blocked         | Blocked       |
+| LAN to DMZ admin access | Windows 10 LAN Client | 10.0.10.10  | Allowed         | Successful    |
 
-The validation confirms that the DMZ network can access the internet and resolve DNS, while access from the DMZ into the trusted LAN is blocked.
+The validation confirms that the DMZ network can access the internet and resolve DNS, access from the DMZ into the trusted LAN is blocked, and the trusted LAN can reach the DMZ server for administrative access.
 
 ## Screenshots Collected
 
@@ -190,16 +209,4 @@ The validation confirms that the DMZ network can access the internet and resolve
 | `03-pfsense-dmz-interface-ip-configured.png` | Shows the DMZ interface enabled in pfSense with static IPv4 address `10.0.10.1/24`.                                   |
 | `06-dmz-firewall-rules-secured.png`          | Shows the final DMZ firewall rules blocking DMZ-to-LAN traffic and allowing DMZ outbound internet access.             |
 | `07-dmz-connectivity-validation.png`         | Shows successful internet connectivity, successful DNS resolution, and blocked DMZ-to-LAN access from the DMZ server. |
-
-
-## Screenshot Placeholders
-
-Screenshots will be added after the lab configuration is completed.
-
-- pfSense DMZ interface assignment
-- pfSense DMZ IP configuration
-- Windows Server 2025 static IP configuration
-- DMZ firewall rules
-- Successful LAN to DMZ test
-- Blocked DMZ to LAN test
-- Firewall log validation
+| `09-lan-to-dmz-ping-success.png`             | Shows successful LAN-to-DMZ connectivity from the Windows 10 LAN client to the Windows Server 2025 DMZ server.        |
