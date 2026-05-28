@@ -119,13 +119,80 @@ This temporary rule allowed the DMZ server to reach the pfSense DMZ gateway and 
 
 ## Validation Tests
 
-The following tests will be performed after configuration:
+## Validation Tests
 
-- Confirm Windows Server 2025 can ping pfSense DMZ gateway
-- Confirm LAN can reach DMZ only on allowed ports
-- Confirm DMZ cannot access LAN by default
-- Confirm DMZ server can access internet if allowed
-- Confirm firewall logs show allowed and blocked traffic
+### Test 1: DMZ Server Internet Access
+
+The Windows Server 2025 DMZ server was tested for outbound internet connectivity.
+
+Command used:
+
+```cmd
+ping 8.8.8.8
+```
+
+Result:
+
+```text
+Successful - 4 packets sent, 4 packets received, 0% packet loss
+```
+
+This confirms that the DMZ server can reach the internet through pfSense.
+
+### Test 2: DMZ DNS Resolution
+
+DNS resolution was tested from the Windows Server 2025 DMZ server.
+
+Command used:
+
+```cmd
+nslookup google.com
+```
+
+Result:
+
+```text
+Successful - google.com resolved to public IPv4 and IPv6 addresses
+```
+
+This confirms that DNS resolution is working from the DMZ network.
+
+### Test 3: DMZ to LAN Block Test
+
+The Windows Server 2025 DMZ server was tested against the internal LAN gateway.
+
+Command used:
+
+```cmd
+ping 10.0.0.1
+```
+
+Result:
+
+```text
+Blocked - 4 packets sent, 0 packets received, 100% packet loss
+```
+
+This confirms that the firewall rule blocking DMZ-to-LAN traffic is working as expected.
+
+## Validation Summary
+
+| Test                  | Source     | Destination | Expected Result | Actual Result |
+| --------------------- | ---------- | ----------- | --------------- | ------------- |
+| Internet connectivity | DMZ Server | 8.8.8.8     | Allowed         | Successful    |
+| DNS resolution        | DMZ Server | google.com  | Allowed         | Successful    |
+| DMZ to LAN access     | DMZ Server | 10.0.0.1    | Blocked         | Blocked       |
+
+The validation confirms that the DMZ network can access the internet and resolve DNS, while access from the DMZ into the trusted LAN is blocked.
+
+## Screenshots Collected
+
+| Screenshot                                   | Description                                                                                                           |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `03-pfsense-dmz-interface-ip-configured.png` | Shows the DMZ interface enabled in pfSense with static IPv4 address `10.0.10.1/24`.                                   |
+| `06-dmz-firewall-rules-secured.png`          | Shows the final DMZ firewall rules blocking DMZ-to-LAN traffic and allowing DMZ outbound internet access.             |
+| `07-dmz-connectivity-validation.png`         | Shows successful internet connectivity, successful DNS resolution, and blocked DMZ-to-LAN access from the DMZ server. |
+
 
 ## Screenshot Placeholders
 
