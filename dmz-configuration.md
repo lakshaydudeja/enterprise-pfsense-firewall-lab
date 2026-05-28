@@ -119,8 +119,6 @@ This temporary rule allowed the DMZ server to reach the pfSense DMZ gateway and 
 
 ## Validation Tests
 
-## Validation Tests
-
 ### Test 1: DMZ Server Internet Access
 
 The Windows Server 2025 DMZ server was tested for outbound internet connectivity.
