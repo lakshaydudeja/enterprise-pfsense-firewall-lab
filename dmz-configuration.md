@@ -381,8 +381,6 @@ This confirms that the DMZ server remains isolated from the trusted LAN even aft
 
 ## Validation Summary
 
-## Validation Summary
-
 | Test                        | Source                | Destination         | Expected Result | Actual Result |
 | --------------------------- | --------------------- | ------------------- | --------------- | ------------- |
 | Internet connectivity       | DMZ Server            | 8.8.8.8             | Allowed         | Successful    |
