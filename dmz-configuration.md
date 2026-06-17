@@ -138,6 +138,100 @@ A firewall rule was added on the LAN interface to allow the trusted LAN to acces
 | ------ | --------- | ----------- | ----------- | ---------------------------------------- |
 | Pass   | LAN       | LAN subnets | 10.0.10.10  | Allow LAN admin access to the DMZ server |
 
+## DMZ Web Server Configuration
+
+### IIS Installation
+
+Internet Information Services (IIS) was installed on the Windows Server 2025 DMZ server to simulate a public-facing web server hosted inside the DMZ.
+
+The following PowerShell command was used on the DMZ server:
+
+```powershell
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+```
+
+After installation, IIS was tested locally from the DMZ server using:
+
+```text
+http://localhost
+```
+
+The default IIS welcome page loaded successfully, confirming that the web service was running on the DMZ server.
+
+### LAN Access to DMZ Web Server
+
+The Windows 10 LAN client was used to test access to the DMZ web server.
+
+Test URL:
+
+```text
+http://10.0.10.10
+```
+
+Result:
+
+```text
+Successful - The default IIS welcome page loaded from the Windows 10 LAN client.
+```
+
+This confirms that the trusted LAN can access the web service hosted on the DMZ server.
+
+### WAN Port Forwarding to DMZ Web Server
+
+A NAT port forwarding rule was configured on pfSense to allow WAN-side access to the DMZ web server.
+
+Instead of exposing the web server directly on external port 80, a custom external port was used.
+
+| Setting              | Value                          |
+| -------------------- | ------------------------------ |
+| Interface            | WAN                            |
+| Protocol             | TCP                            |
+| External/WAN Port    | 8085                           |
+| Destination          | WAN address                    |
+| Redirect Target IP   | 10.0.10.10                     |
+| Redirect Target Port | 80                             |
+| Description          | WAN TCP 8085 to DMZ Web Server |
+
+Traffic flow:
+
+```text
+WAN Client -> pfSense WAN IP:8085 -> DMZ Web Server 10.0.10.10:80
+```
+
+### WAN Access Test
+
+The DMZ web server was tested from the WAN side using the pfSense WAN IP address and external port `8085`.
+
+Test URL:
+
+```text
+http://192.168.126.133:8085
+```
+
+Result:
+
+```text
+Successful - The default IIS welcome page loaded through the pfSense WAN port forward.
+```
+
+This confirms that WAN-side traffic to pfSense on TCP port `8085` was successfully forwarded to the IIS web server running on the DMZ server.
+
+### WAN Private Network Note
+
+Because this lab uses VMware NAT networking, the pfSense WAN interface received a private IP address:
+
+```text
+192.168.126.133
+```
+
+To allow WAN-side testing from the VMware private network, the following WAN setting was disabled in pfSense:
+
+```text
+Block private networks and loopback addresses
+```
+
+This setting was disabled only because the lab WAN network uses private RFC1918 addressing. In a real public-facing firewall deployment, this setting is normally kept enabled unless there is a specific design requirement to allow private upstream traffic.
+
 ## Validation Tests
 
 ### Test 1: DMZ Server Internet Access
@@ -212,16 +306,96 @@ Successful - 4 packets sent, 4 packets received, 0% packet loss
 
 This confirms that the internal LAN can reach the DMZ server through the firewall rule allowing LAN-to-DMZ administrative access.
 
+### Test 5: IIS Web Server Local Test
+
+IIS was tested locally from the Windows Server 2025 DMZ server.
+
+Test URL:
+
+```text
+http://localhost
+```
+
+Result:
+
+```text
+Successful - The default IIS welcome page loaded locally on the DMZ server.
+```
+
+This confirms that IIS was installed and running correctly on the DMZ server.
+
+### Test 6: LAN to DMZ Web Server Access
+
+The Windows 10 LAN client was tested for web access to the IIS server hosted in the DMZ.
+
+Test URL:
+
+```text
+http://10.0.10.10
+```
+
+Result:
+
+```text
+Successful - The default IIS welcome page loaded from the LAN client.
+```
+
+This confirms that LAN-to-DMZ web access is working.
+
+### Test 7: WAN to DMZ Web Server Access
+
+WAN-side access to the DMZ web server was tested using pfSense NAT port forwarding.
+
+Test URL:
+
+```text
+http://192.168.126.133:8085
+```
+
+Result:
+
+```text
+Successful - The default IIS welcome page loaded through the pfSense WAN port forward.
+```
+
+This confirms that external/WAN-side traffic to pfSense TCP port `8085` is forwarded to the DMZ web server on TCP port `80`.
+
+### Test 8: Final DMZ to LAN Block Validation
+
+The Windows Server 2025 DMZ server was tested again to confirm it could not initiate access into the trusted LAN.
+
+Command used:
+
+```cmd
+ping 10.0.0.1
+```
+
+Result:
+
+```text
+Blocked - 4 packets sent, 0 packets received, 100% packet loss
+```
+
+This confirms that the DMZ server remains isolated from the trusted LAN even after IIS and WAN port forwarding were configured.
+
+
 ## Validation Summary
 
-| Test                    | Source                | Destination | Expected Result | Actual Result |
-| ----------------------- | --------------------- | ----------- | --------------- | ------------- |
-| Internet connectivity   | DMZ Server            | 8.8.8.8     | Allowed         | Successful    |
-| DNS resolution          | DMZ Server            | google.com  | Allowed         | Successful    |
-| DMZ to LAN access       | DMZ Server            | 10.0.0.1    | Blocked         | Blocked       |
-| LAN to DMZ admin access | Windows 10 LAN Client | 10.0.10.10  | Allowed         | Successful    |
+## Validation Summary
 
-The validation confirms that the DMZ network can access the internet and resolve DNS, access from the DMZ into the trusted LAN is blocked, and the trusted LAN can reach the DMZ server for administrative access.
+| Test                        | Source                | Destination         | Expected Result | Actual Result |
+| --------------------------- | --------------------- | ------------------- | --------------- | ------------- |
+| Internet connectivity       | DMZ Server            | 8.8.8.8             | Allowed         | Successful    |
+| DNS resolution              | DMZ Server            | google.com          | Allowed         | Successful    |
+| DMZ to LAN access           | DMZ Server            | 10.0.0.1            | Blocked         | Blocked       |
+| LAN to DMZ admin access     | Windows 10 LAN Client | 10.0.10.10          | Allowed         | Successful    |
+| IIS local test              | DMZ Server            | localhost           | Allowed         | Successful    |
+| LAN to DMZ web access       | Windows 10 LAN Client | 10.0.10.10:80       | Allowed         | Successful    |
+| WAN to DMZ web access       | WAN-side client       | pfSense WAN IP:8085 | Allowed         | Successful    |
+| Final DMZ to LAN validation | DMZ Server            | 10.0.0.1            | Blocked         | Blocked       |
+
+The validation confirms that the DMZ server can access the internet and resolve DNS, the trusted LAN can access the DMZ web server, WAN-side access works through pfSense NAT port forwarding, and the DMZ server cannot initiate access back into the trusted LAN.
+
 
 ## Screenshots Collected
 
