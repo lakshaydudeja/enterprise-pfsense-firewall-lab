@@ -397,10 +397,44 @@ The validation confirms that the DMZ server can access the internet and resolve 
 
 ## Screenshots Collected
 
-| Screenshot                                   | Description                                                                                                           |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `03-pfsense-dmz-interface-ip-configured.png` | Shows the DMZ interface enabled in pfSense with static IPv4 address `10.0.10.1/24`.                                   |
-| `06-dmz-firewall-rules-secured.png`          | Shows the final DMZ firewall rules blocking DMZ-to-LAN traffic and allowing DMZ outbound internet access.             |
-| `07-dmz-connectivity-validation.png`         | Shows successful internet connectivity, successful DNS resolution, and blocked DMZ-to-LAN access from the DMZ server. |
-| `08-lan-to-dmz-admin-rule.png`               | Shows the LAN firewall rule allowing administrative access from the LAN to the DMZ server.                            |
-| `09-lan-to-dmz-ping-success.png`             | Shows successful LAN-to-DMZ connectivity from the Windows 10 LAN client to the Windows Server 2025 DMZ server.        |
+### 1. pfSense DMZ Interface Configuration
+
+This screenshot shows the DMZ interface enabled in pfSense with the static IPv4 address `10.0.10.1/24`.
+
+![pfSense DMZ interface configured](screenshots/dmz/03-pfsense-dmz-interface-ip-configured.png)
+
+### 2. Final DMZ Firewall Rules
+
+This screenshot shows the final DMZ firewall rules. The first rule blocks DMZ-to-LAN traffic, and the second rule allows DMZ outbound internet access.
+
+![Final DMZ firewall rules](screenshots/dmz/06-dmz-firewall-rules-secured.png)
+
+### 3. LAN Access to DMZ Web Server
+
+This screenshot shows the Windows 10 LAN client successfully accessing the IIS web server hosted on the Windows Server 2025 DMZ server.
+
+![LAN access to DMZ web server](screenshots/dmz/11-lan-access-dmz-web-server.png)
+
+### 4. WAN to DMZ NAT Port Forward Rule
+
+This screenshot shows the pfSense NAT port forwarding rule that forwards WAN TCP port `8085` to the DMZ web server on `10.0.10.10:80`.
+
+![WAN to DMZ NAT port forward rule](screenshots/dmz/12-wan-8085-to-dmz-web-nat-rule.png)
+
+### 5. WAN Access to DMZ Web Server
+
+This screenshot shows successful WAN-side access to the DMZ IIS web server through the pfSense WAN IP using TCP port `8085`.
+
+![WAN access to DMZ web server](screenshots/dmz/13-wan-access-dmz-web-server.png)
+
+### 6. WAN Firewall Rule for DMZ Web Server
+
+This screenshot shows the WAN firewall rule associated with the NAT port forward for allowing TCP `8085` traffic to the DMZ web server.
+
+![WAN firewall rule for DMZ web server](screenshots/dmz/14-wan-firewall-rule-8085-to-dmz.png)
+
+### 7. DMZ to LAN Block Validation
+
+This screenshot shows the Windows Server 2025 DMZ server failing to ping the internal LAN gateway `10.0.0.1`, confirming that DMZ-to-LAN traffic is blocked.
+
+![DMZ to LAN block validation](screenshots/dmz/15-dmz-to-lan-block-validation.png)
