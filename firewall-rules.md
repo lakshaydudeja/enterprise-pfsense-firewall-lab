@@ -18,7 +18,7 @@ The goal is to demonstrate how pfSense can be used to enforce network segmentati
 ## Key Hosts
 
 | Host | Zone | IP Address | Purpose |
-|---|---|---|
+|---|---|---|---|
 | pfSense LAN Gateway | LAN | 10.0.0.1 | Default gateway for trusted LAN |
 | Windows 10 Client | LAN | 10.0.0.2 | Internal client used for validation |
 | Windows Server 2025 DMZ | DMZ | 10.0.10.10 | IIS web server hosted in DMZ |
